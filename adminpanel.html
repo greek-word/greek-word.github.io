@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Messages</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            padding: 2rem;
+            color: #0f172a;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .login-box {
+            max-width: 400px;
+            margin: 4rem auto;
+            background: white;
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .login-box h2 {
+            margin-bottom: 0.5rem;
+            font-size: 1.8rem;
+        }
+        .login-box p {
+            color: #64748b;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: #334155;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            font-size: 0.95rem;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+        }
+        button {
+            background: #1e293b;
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 40px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 0.9rem;
+            width: 100%;
+        }
+        button:hover {
+            background: #0f172a;
+        }
+        .error {
+            color: #dc2626;
+            margin-top: 0.8rem;
+            font-size: 0.85rem;
+        }
+        /* Admin Panel Styles */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+        .badge {
+            background: #e2e8f0;
+            padding: 0.3rem 0.8rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+        }
+        .user-email {
+            font-size: 0.85rem;
+            background: #f1f5f9;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+        }
+        .stats-bar {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.8rem;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        .messages-table-wrapper {
+            background: white;
+            border-radius: 24px;
+            border: 1px solid #e2e8f0;
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        th {
+            text-align: left;
+            padding: 1rem 1.2rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+        }
+        td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: top;
+        }
+        tr:hover {
+            background: #fefce8;
+        }
+        .message-preview {
+            max-width: 320px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .timestamp {
+            font-size: 0.75rem;
+            color: #64748b;
+            white-space: nowrap;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #64748b;
+        }
+        .delete-btn {
+            background: #fee2e2;
+            color: #b91c1c;
+            padding: 0.3rem 0.9rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            width: auto;
+        }
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+        .refresh-btn {
+            background: #3b82f6;
+            width: auto;
+            margin-left: 0.5rem;
+        }
+        .logout-btn {
+            background: #ef4444;
+            width: auto;
+        }
+        .action-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #3b82f6;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 700px) {
+            body { padding: 1rem; }
+            .message-preview { max-width: 200px; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- LOGIN VIEW -->
+    <div id="loginView">
+        <div class="login-box">
+            <h2>🔐 Admin Login</h2>
+            <p>Only authorized administrators can access</p>
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@yourdomain.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="loginPassword" placeholder="••••••••">
+            </div>
+            <button id="loginBtn">Login to Dashboard</button>
+            <div id="errorMsg" class="error"></div>
+        </div>
+    </div>
+
+    <!-- ADMIN PANEL (hidden until login) -->
+    <div id="panelView" style="display: none;">
+        <div class="header">
+            <div>
+                <h1>📬 Message Control Panel</h1>
+                <div class="badge">srj-source</div>
+            </div>
+            <div class="action-group">
+                <span class="user-email" id="userEmailDisplay">—</span>
+                <button id="refreshMessagesBtn" class="refresh-btn">↻ Refresh</button>
+                <button id="logoutBtn" class="logout-btn">🚪 Logout</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="stat-card">📨 Total Messages: <span id="totalCount">0</span></div>
+            <div class="stat-card">🕒 Last updated: <span id="lastUpdated">—</span></div>
+        </div>
+
+        <div class="messages-table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Message</th>
+                        <th>Received</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="messagesTableBody">
+                    <tr><td colspan="6" class="empty-state">Login to view messages</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <footer>🔐 Secure panel - powered by srj-source</footer>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc, orderBy, query } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ========== YOUR FIREBASE CONFIGURATION ==========
+    // Replace with your actual Firebase project config
+    const firebaseConfig = {
+apiKey: "AIzaSyBGAm5OUg0jlrVcaBeV3WxLSwiCKywX9jo",
+  authDomain: "resume-c98b6.firebaseapp.com",
+  projectId: "resume-c98b6",
+  storageBucket: "resume-c98b6.firebasestorage.app",
+  messagingSenderId: "421394850163",
+  appId: "1:421394850163:web:49a154c02318ce7b39e506"
+    };
+    // =================================================
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM elements
+    const loginView = document.getElementById('loginView');
+    const panelView = document.getElementById('panelView');
+    const loginBtn = document.getElementById('loginBtn');
+    const loginEmail = document.getElementById('loginEmail');
+    const loginPassword = document.getElementById('loginPassword');
+    const errorMsg = document.getElementById('errorMsg');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const refreshBtn = document.getElementById('refreshMessagesBtn');
+    const messagesTableBody = document.getElementById('messagesTableBody');
+    const totalCountSpan = document.getElementById('totalCount');
+    const lastUpdatedSpan = document.getElementById('lastUpdated');
+    const userEmailDisplay = document.getElementById('userEmailDisplay');
+
+    // Helper functions
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+
+    // Load all messages from Firestore
+    async function loadMessages() {
+        messagesTableBody.innerHTML = `<tr><td colspan="6" class="empty-state"><span class="loading-spinner"></span> Loading messages...</td></tr>`;
+        
+        try {
+            const q = query(collection(db, "messages"), orderBy("timestamp", "desc"));
+            const querySnapshot = await getDocs(q);
+            const messages = [];
+            
+            querySnapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                messages.push({
+                    id: docSnap.id,
+                    name: data.name || "Anonymous",
+                    email: data.email || "no-email",
+                    message: data.message || "",
+                    timestamp: data.timestamp
+                });
+            });
+
+            totalCountSpan.innerText = messages.length;
+            const now = new Date();
+            lastUpdatedSpan.innerText = now.toLocaleTimeString() + " " + now.toLocaleDateString();
+            
+            if (messages.length === 0) {
+                messagesTableBody.innerHTML = '<tr><td colspan="6" class="empty-state">📭 No messages yet. Submit from contact form.</td></tr>';
+                return;
+            }
+            
+            let html = '';
+            messages.forEach((msg, idx) => {
+                let formattedDate = '—';
+                if (msg.timestamp) {
+                    try {
+                        let dateObj;
+                        if (msg.timestamp.toDate) dateObj = msg.timestamp.toDate();
+                        else if (msg.timestamp.seconds) dateObj = new Date(msg.timestamp.seconds * 1000);
+                        else dateObj = new Date(msg.timestamp);
+                        formattedDate = dateObj.toLocaleString();
+                    } catch(e) { formattedDate = 'Invalid date'; }
+                }
+                
+                const safeName = escapeHtml(msg.name);
+                const safeEmail = escapeHtml(msg.email);
+                const safeMsg = escapeHtml(msg.message);
+                
+                html += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><strong>${safeName}</strong></td>
+                        <td><a href="mailto:${safeEmail}" style="color:#2563eb; text-decoration:none;">${safeEmail}</a></td>
+                        <td class="message-preview">${safeMsg.replace(/\n/g, '<br>')}</td>
+                        <td class="timestamp">${formattedDate}</td>
+                        <td><button class="delete-btn" data-id="${msg.id}" data-name="${safeName}">🗑 Delete</button></td>
+                    </tr>
+                `;
+            });
+            messagesTableBody.innerHTML = html;
+            
+            // Attach delete handlers
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    e.stopPropagation();
+                    const messageId = btn.getAttribute('data-id');
+                    const messageName = btn.getAttribute('data-name');
+                    if (confirm(`Delete message from "${messageName}"? This cannot be undone.`)) {
+                        try {
+                            await deleteDoc(doc(db, "messages", messageId));
+                            await loadMessages();
+                            const originalText = refreshBtn.textContent;
+                            refreshBtn.textContent = "✓ Deleted!";
+                            setTimeout(() => { refreshBtn.textContent = originalText; }, 1200);
+                        } catch (error) {
+                            alert("Delete failed: " + error.message);
+                        }
+                    }
+                });
+            });
+        } catch (error) {
+            console.error("Load error:", error);
+            messagesTableBody.innerHTML = `<tr><td colspan="6" class="empty-state" style="color:#b91c1c;">⚠️ Error loading messages: ${error.message}</td></tr>`;
+        }
+    }
+
+    // Login handler
+    async function handleLogin() {
+        const email = loginEmail.value.trim();
+        const password = loginPassword.value;
+        
+        if (!email || !password) {
+            errorMsg.innerText = "Please enter email and password.";
+            return;
+        }
+        
+        errorMsg.innerText = "";
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Logging in...";
+        
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            // Auth state listener will handle UI change
+        } catch (err) {
+            console.error(err);
+            let msg = "Login failed: ";
+            if (err.code === 'auth/user-not-found') msg += "No account found with this email.";
+            else if (err.code === 'auth/wrong-password') msg += "Incorrect password.";
+            else if (err.code === 'auth/invalid-email') msg += "Invalid email format.";
+            else msg += err.message;
+            errorMsg.innerText = msg;
+            loginBtn.disabled = false;
+            loginBtn.textContent = "Login to Dashboard";
+        }
+    }
+
+    // Logout handler
+    async function handleLogout() {
+        await signOut(auth);
+    }
+
+    // Auth state listener - ONLY shows panel if user is authenticated
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // User is logged in - show panel
+            loginView.style.display = 'none';
+            panelView.style.display = 'block';
+            userEmailDisplay.innerText = user.email;
+            await loadMessages();
+        } else {
+            // User is logged out - show login
+            loginView.style.display = 'block';
+            panelView.style.display = 'none';
+            loginEmail.value = '';
+            loginPassword.value = '';
+            errorMsg.innerText = '';
+            loginBtn.disabled = false;
+            loginBtn.textContent = "Login to Dashboard";
+        }
+    });
+
+    // Event listeners
+    loginBtn.addEventListener('click', handleLogin);
+    logoutBtn.addEventListener('click', handleLogout);
+    refreshBtn.addEventListener('click', () => { if (auth.currentUser) loadMessages(); });
+    
+    // Enter key support
+    loginPassword.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+    loginEmail.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin();
+    });
+
+    // Warning if Firebase config is placeholder
+    const isPlaceholder = firebaseConfig.apiKey === "YOUR_API_KEY" || firebaseConfig.projectId === "YOUR_PROJECT_ID";
+    if (isPlaceholder) {
+        const warnDiv = document.createElement('div');
+        warnDiv.style.backgroundColor = "#ffedd5";
+        warnDiv.style.padding = "12px 20px";
+        warnDiv.style.borderRadius = "20px";
+        warnDiv.style.marginBottom = "20px";
+        warnDiv.style.textAlign = "center";
+        warnDiv.style.fontSize = "0.85rem";
+        warnDiv.innerHTML = "⚠️ <strong> config required:</strong> Replace apiKey, projectId etc. in the script with your project credentials.";
+        document.querySelector('.container').prepend(warnDiv);
+    }
+</script>
+</body>
+</html>
