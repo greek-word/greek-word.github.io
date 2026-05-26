@@ -1,0 +1,20 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Smart Redirect</title>
+<script>
+function detectDevice() {
+    var userAgent = navigator.userAgent.toLowerCase();
+
+    if (/android|iphone|ipad|ipod|mobile/i.test(userAgent)) {
+        window.location.href = "https://greek-word.github.io/page1";
+    } else {
+        window.location.href = "https://greek-word.github.io/page2";
+    }
+}
+</script>
+</head><!-- preview.html-->
+<body onload="detectDevice()">
+</body>
+</html>
